@@ -1,0 +1,24 @@
+name: Get Modified Folders
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  get-modified-folders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get modified folders
+        id: modified_folders
+        run: |
+          echo "Modified Folders:"
+          git diff --name-only --diff-filter=d ${{ github.event.before }} ${{ github.sha }} | xargs -n1 dirname | sort -u > modified_folders.txt
+
+      - name: Print modified folders
+        run: |
+          cat modified_folders.txt
