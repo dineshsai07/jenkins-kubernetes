@@ -3,10 +3,7 @@ name: Get Modified Folders
 on:
   push:
     branches:
-      - master
-      
-    paths:
-      - 'src/**'
+        - main
 
 jobs:
   get-modified-folders:
