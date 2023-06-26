@@ -27,25 +27,24 @@ jobs:
               echo "$file was changed"
             done
 
-#       - name: Get modified folders
-#         id: modified_folders
-#         run: |
-#           echo "Modified Folders:"
-#           git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' '{print $1}' | sort -u > modified_folders.txt
-
-#       - name: Print modified folders
-#         run: |
-#           cat modified_folders.txt
-
-
       - name: Get modified folders
+        id: modified_folders
         run: |
-            echo "Modified Folders:"
-            git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' 'NR==1{print $1; exit}' > modified_folders.txt
-  
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' '{print $1}' | sort -u > modified_folders.txt
+
       - name: Print modified folders
         run: |
           cat modified_folders.txt
+
+
+#       - name: Get modified folders
+#         run: |
+#             echo "Modified Folders:"
+#             git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' 'NR==1{print $1; exit}' > modified_folders.txt
+  
+#       - name: Print modified folders
+#         run: |
+#           cat modified_folders.txt
           
           
       - name: Zip folders and deploy 
@@ -62,4 +61,4 @@ jobs:
             done < modified_folders.txt
             
       - name: echoing folder name 
-        run : echo $folder_name
+        run : echo $folder_name.zip
