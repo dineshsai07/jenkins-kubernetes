@@ -28,6 +28,7 @@ jobs:
       - name: Zip folders and deploy
         run: |
           while IFS= read -r folder; do
+          if [[ "$folder" == "src" || "$folder" == "sai" ]]; then
             folder_name=$(echo "$folder" | sed 's#/$##')
             zip -r "$folder_name.zip" "$folder_name"
             folder_size=$(du -ms "$folder_name" | awk '{print $1}')
@@ -36,6 +37,7 @@ jobs:
             else
               echo "folder size is less than 10 mb"
             fi
+          fi
           done < modified_folders.txt
 
       - name: List
