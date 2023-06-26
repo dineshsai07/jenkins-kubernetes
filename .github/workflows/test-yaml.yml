@@ -32,10 +32,11 @@ jobs:
             folder_name=$(echo "$folder" | sed 's#/$##')
             zip -r "$folder_name.zip" "$folder_name"
             folder_size=$(du -ms "$folder_name" | awk '{print $1}')
+            lambda_function_name=$(basename "$folder_name")
             if [ "$folder_size" -gt 10 ]; then
-              echo "folder size is greater than 10 mb"
+              echo "folder size is greater than 10 mb and folder name is "$lambda_function_name""
             else
-              echo "folder size is less than 10 mb"
+              echo "folder size is less than 10 mb and folder name is "$lambda_function_name""
             fi
           fi
           done < modified_folders.txt
