@@ -28,7 +28,7 @@ jobs:
         id: modified_folders
         run: |
           echo "Modified Folders:"
-          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' '{print $2}' | sort -u > modified_folders.txt
+          git diff --name-only ${{ github.event.before }} ${{ github.sha }} | awk -F'/' '{print $1}' | sort -u > modified_folders.txt
 
       - name: Print modified folders
         run: |
