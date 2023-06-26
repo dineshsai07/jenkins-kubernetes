@@ -1,0 +1,42 @@
+name: Get Modified Folders
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'src/**'
+
+jobs:
+  get-modified-folders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get modified folders
+        id: modified_folders
+        run: |
+          git fetch --depth=1 origin ${{ github.event.before }}
+          git diff --name-only FETCH_HEAD ${{ github.sha }} | awk -F'/' '{print $1}' | sort -u > modified_folders.txt
+
+      - name: Print modified folders
+        run: |
+          cat modified_folders.txt
+
+      - name: Zip folders and deploy
+        run: |
+          while IFS= read -r folder; do
+            folder_name=$(echo "$folder" | sed 's#/$##')
+            zip -r "$folder_name.zip" "$folder_name"
+            folder_size=$(du -ms "$folder_name" | awk '{print $1}')
+            if [ "$folder_size" -gt 10 ]; then
+              echo "folder size is greater than 10 mb"
+            else
+              echo "folder size is less than 10 mb"
+            fi
+          done < modified_folders.txt
+
+      - name: List
+        run: ls
