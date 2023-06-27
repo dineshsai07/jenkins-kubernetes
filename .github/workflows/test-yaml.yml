@@ -26,14 +26,39 @@ jobs:
         run: |
           cat modified_folders.txt
 
+      - name: Read lambda function names
+        id: lambda_names
+        run: |
+          while IFS= read -r folder; do
+            if [[ "$folder" == "sai" || "$folder" == "dinesh" || "$folder" == "src" ]]; then
+              folder_name=$(echo "$folder" | sed 's#/$##')
+              lambda_function_name_dev=$(cat "$folder_name/lambda-dev.txt")
+              lambda_function_name_qa=$(cat "$folder_name/lambda-qa.txt")
+              lambda_function_name_prod=$(cat "$folder_name/lambda-prod.txt")
+              case "${{ github.ref }}" in
+                refs/heads/master)
+                  lambda_function_name=$lambda_function_name_dev
+                  ;;
+                refs/heads/main)
+                  lambda_function_name=$lambda_function_name_qa
+                  ;;
+                *)
+                  echo "Invalid branch name"
+                  exit 1
+                  ;;
+              esac
+              echo "::set-output name=lambda_function_name::$lambda_function_name"
+            fi
+          done < modified_folders.txt
+
       - name: Zip folders and deploy
         run: |
           while IFS= read -r folder; do
           if [[ "$folder" == "src" || "$folder" == "sai" ]]; then
             folder_name=$(echo "$folder" | sed 's#/$##')
-            zip -r "$folder_name.zip" "$folder_name"
+            zip -r "$lambda_function_name.zip" "$folder_name"
             folder_size=$(du -ms "$folder_name" | awk '{print $1}')
-            lambda_function_name=$(basename "$folder_name")
+            # lambda_function_name=$(basename "$folder_name")
             if [ "$folder_size" -gt 10 ]; then
               echo "folder size is greater than 10 mb and folder name is "$lambda_function_name""
             else
